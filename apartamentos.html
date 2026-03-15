@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Mis Apartamentos</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  :root{
+    --bg:#0a0a0f;--card:#13131a;--border:#22222e;--accent:#7C6FFF;
+    --green:#4ECDC4;--red:#FF6B6B;--yellow:#FFD166;--text:#F0EDE4;--muted:#666;
+  }
+  body{background:var(--bg);color:var(--text);font-family:monospace;min-height:100vh;padding-bottom:60px;}
+  nav{background:var(--card);border-bottom:1px solid var(--border);padding:16px 18px;position:sticky;top:0;z-index:100;}
+  .nav-title{font-size:17px;font-weight:700;letter-spacing:1px;color:var(--accent);}
+  .nav-sub{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:2px;}
+  .tabs{display:flex;gap:6px;padding:14px 16px 0;}
+  .tab{flex:1;padding:10px 4px;border-radius:10px 10px 0 0;border:1px solid var(--border);border-bottom:none;
+    background:var(--card);color:var(--muted);font-family:monospace;font-size:10px;letter-spacing:0px;
+    text-transform:uppercase;cursor:pointer;text-align:center;transition:all .2s;}
+  .tab.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .page{display:none;padding:0 16px 16px;}
+  .page.active{display:block;}
+  .section-card{background:var(--card);border:1px solid var(--border);border-radius:0 12px 12px 12px;padding:18px;margin-bottom:14px;}
+  .section-title{font-size:10px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:14px;}
+  .field{margin-bottom:12px;}
+  label{display:block;font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:5px;}
+  input,select,textarea{width:100%;background:#1c1c26;border:1px solid var(--border);border-radius:8px;
+    padding:11px 13px;color:var(--text);font-family:monospace;font-size:14px;outline:none;-webkit-appearance:none;}
+  input:focus,select:focus{border-color:var(--accent);}
+  select option{background:#1c1c26;}
+  input[type=number]::-webkit-inner-spin-button,
+  input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .gastos-live{background:#1c1c26;border:1px solid #FF6B6B55;border-radius:10px;padding:12px 16px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;}
+  .neto-live{background:#1c1c26;border:1px solid #4ECDC455;border-radius:10px;padding:12px 16px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;}
+  .live-label{font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;}
+  .live-val{font-size:20px;font-weight:700;}
+  .btn{width:100%;padding:13px;border-radius:10px;border:none;font-family:monospace;
+    font-size:13px;letter-spacing:1px;cursor:pointer;font-weight:700;margin-top:4px;transition:opacity .2s;}
+  .btn:active{opacity:.7;}
+  .btn-primary{background:var(--accent);color:#fff;}
+  .btn-danger{background:transparent;border:1px solid var(--red);color:var(--red);}
+  .btn-sm{width:auto;padding:6px 12px;font-size:11px;border-radius:7px;}
+  .reserva-card{background:#1c1c26;border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;}
+  .reserva-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
+  .reserva-apt{font-size:13px;font-weight:700;color:var(--accent);}
+  .reserva-plataforma{font-size:10px;padding:3px 8px;border-radius:20px;background:#22222e;color:var(--muted);}
+  .reserva-fechas{font-size:12px;color:var(--text);margin-bottom:2px;}
+  .reserva-noches{font-size:10px;color:var(--muted);margin-bottom:6px;}
+  .reserva-nums{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:8px;}
+  .num-box{background:var(--bg);border-radius:7px;padding:8px;text-align:center;}
+  .num-label{font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:3px;}
+  .num-val{font-size:14px;font-weight:700;}
+  .gastos-pills{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;}
+  .pill{font-size:10px;padding:3px 8px;border-radius:20px;background:var(--bg);color:var(--muted);}
+  .badge-airbnb{background:#FF5A5F22;color:#FF5A5F;}
+  .badge-booking{background:#003B9522;color:#4a9eff;}
+  .badge-vrbo{background:#18530422;color:#4CAF50;}
+  .badge-mercadolibre{background:#FFD16622;color:#FFD166;}
+  .badge-directo{background:#7C6FFF22;color:#7C6FFF;}
+  .badge-otro{background:#66666622;color:#aaa;}
+  .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+  .stat-box{background:#1c1c26;border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;}
+  .stat-label{font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;}
+  .stat-val{font-size:20px;font-weight:700;}
+  .apt-resumen{background:#1c1c26;border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;}
+  .apt-name{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:10px;}
+  .bar-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+  .bar-label{font-size:10px;color:var(--muted);width:75px;flex-shrink:0;}
+  .bar-bg{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden;}
+  .bar-fill{height:100%;border-radius:3px;transition:width .6s ease;}
+  .bar-amt{font-size:11px;color:var(--text);width:72px;text-align:right;flex-shrink:0;}
+  .neto-row{display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--bg);border-radius:8px;margin-top:8px;}
+  .empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:12px;letter-spacing:1px;}
+  .empty .icon{font-size:40px;margin-bottom:12px;}
+  .modal-overlay{display:none;position:fixed;inset:0;background:#000a;z-index:200;align-items:flex-end;}
+  .modal-overlay.open{display:flex;}
+  .modal{background:var(--card);border:1px solid var(--border);border-radius:18px 18px 0 0;
+    padding:22px 18px 36px;width:100%;max-height:90vh;overflow-y:auto;}
+  .modal-title{font-size:14px;font-weight:700;margin-bottom:18px;color:var(--accent);}
+  .modal-close{float:right;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;}
+  .divider{height:1px;background:var(--border);margin:14px 0;}
+  .subsec{font-size:10px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;margin-bottom:10px;}
+  .pago-card{background:#1c1c26;border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:8px;}
+  .pago-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;}
+  .pago-tipo{font-size:13px;font-weight:700;}
+  .pago-estado-pagado{font-size:10px;padding:3px 10px;border-radius:20px;background:#4ECDC422;color:#4ECDC4;}
+  .pago-estado-pendiente{font-size:10px;padding:3px 10px;border-radius:20px;background:#FFD16622;color:#FFD166;}
+  .pago-info{font-size:11px;color:var(--muted);margin-bottom:4px;}
+  .pago-monto{font-size:20px;font-weight:700;color:#FF6B6B;}
+  .pago-actions{display:flex;gap:8px;margin-top:10px;}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-title">🏖 Mis Apartamentos</div>
+  <div class="nav-sub">gestión vacacional</div>
+</nav>
+
+<div class="tabs">
+  <button class="tab active" onclick="showPage('reservas')">📋 Reservas</button>
+  <button class="tab" onclick="showPage('nueva')">➕ Nueva</button>
+  <button class="tab" onclick="showPage('pagos')">💳 Pagos</button>
+  <button class="tab" onclick="showPage('resumen')">📊 Resumen</button>
+</div>
+
+<!-- RESERVAS -->
+<div class="page active" id="page-reservas">
+  <div class="section-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <span class="section-title" style="margin:0">Historial</span>
+      <select id="filtro-apt" onchange="renderReservas()" style="width:auto;padding:6px 10px;font-size:11px;">
+        <option value="">Todos</option>
+        <option value="Apto Macuto">Apto Macuto</option>
+        <option value="Apto Tanaguarena">Apto Tanaguarena</option>
+      </select>
+    </div>
+    <div id="lista-reservas"></div>
+  </div>
+</div>
+< truncated lines 123-508 >
+        <div class="num-box"><div class="num-label">Neto</div><div class="num-val" style="color:${neto>=0?'#A8E6CF':'#FF6B6B'}">${fmt(neto)}</div></div>
+      </div>
+      ${pills.length?`<div class="gastos-pills">${pills.map(p=>`<span class="pill">${p}</span>`).join('')}</div>`:''}
+      ${r.notas?`<div style="font-size:11px;color:#666;margin-top:8px;padding:8px;background:var(--bg);border-radius:6px;">📝 ${r.notas}</div>`:''}
+      <div style="margin-top:10px;"><button class="btn btn-primary btn-sm" data-id="${r.id}" onclick="abrirEditar(this)">✏️ Editar</button></div>
+    </div>`;
+  }).join('');
+}
+
+function abrirEditar(btn){
+  const id = parseInt(btn.getAttribute('data-id'));
+  const r=getData().find(x=>x.id===id);
+  if(!r) return;
+  ['id','apt','plataforma','entrada','salida','huesped','ingreso','limpieza','mercado','llaves','otros','notas']
+    .forEach(k=>{ const el=document.getElementById('e-'+k); if(el) el.value=r[k]||''; });
+  calcLive('e');
+  document.getElementById('modal').classList.add('open');
+}
+function actualizarReserva(){
+  const id=parseInt(document.getElementById('e-id').value);
+  let d=getData(); const i=d.findIndex(x=>x.id===id); if(i<0)return;
+  ['apt','plataforma','entrada','salida','huesped','notas'].forEach(k=>d[i][k]=document.getElementById('e-'+k).value);
+  ['ingreso','limpieza','mercado','llaves','otros'].forEach(k=>d[i][k]=parseFloat(document.getElementById('e-'+k).value)||0);
+  saveData(d);
+  document.getElementById('modal').classList.remove('open');
+  renderReservas();
+}
+function eliminarReserva(){
+  const btn = document.getElementById('btn-eliminar-reserva');
+  if(btn && btn.dataset.confirm==='1'){
+    const id=parseInt(document.getElementById('e-id').value);
+    saveData(getData().filter(x=>x.id!==id));
+    document.getElementById('modal').classList.remove('open');
+    renderReservas();
+  } else if(btn){
+    btn.dataset.confirm='1';
+    btn.textContent='⚠️ Toca de nuevo para confirmar';
+    setTimeout(()=>{ btn.dataset.confirm=''; btn.textContent='ELIMINAR RESERVA'; }, 3000);
+  }
+}
+function closeModal(e){ if(e.target.id==='modal') document.getElementById('modal').classList.remove('open'); }
+
+function renderResumen(){
+  const data=getData();
+  const years=[...new Set(data.map(r=>r.entrada?r.entrada.split('-')[0]:''))].filter(Boolean).sort().reverse();
+  const sel=document.getElementById('filtro-year');
+  const curYear=sel.value||(years[0]||new Date().getFullYear().toString());
+  sel.innerHTML=years.length?years.map(y=>`<option${y===curYear?' selected':''}>${y}</option>`).join(''):`<option>${new Date().getFullYear()}</option>`;
+  const filtered=data.filter(r=>r.entrada&&r.entrada.startsWith(curYear));
+  const el=document.getElementById('contenido-resumen');
+  if(!filtered.length){el.innerHTML=`<div class="empty"><div class="icon">📊</div>Sin datos para ${curYear}</div>`;return;}
+  const tIng  =filtered.reduce((s,r)=>s+r.ingreso,0);
+  const tGasto=filtered.reduce((s,r)=>s+r.limpieza+r.mercado+(r.llaves||0)+r.otros,0);
+  const tNeto =tIng-tGasto;
+  const tNoch =filtered.reduce((s,r)=>s+noches(r.entrada,r.salida),0);
+  el.innerHTML=`
+  <div class="stat-grid">
+    <div class="stat-box"><div class="stat-label">Total ingresos</div><div class="stat-val" style="color:#4ECDC4">${fmt(tIng)}</div></div>
+    <div class="stat-box"><div class="stat-label">Total gastos</div><div class="stat-val" style="color:#FF6B6B">${fmt(tGasto)}</div></div>
+    <div class="stat-box"><div class="stat-label">Ganancia neta</div><div class="stat-val" style="color:${tNeto>=0?'#A8E6CF':'#FF6B6B'}">${fmt(tNeto)}</div></div>
+    <div class="stat-box"><div class="stat-label">Reservas · Noches</div><div class="stat-val" style="color:#FFD166">${filtered.length} · ${tNoch}</div></div>
+  </div>
+  ${APTS.map(apt=>{
+    const rs=filtered.filter(r=>r.apt===apt);
+    if(!rs.length) return '';
+    const ing =rs.reduce((s,r)=>s+r.ingreso,0);
+    const limp=rs.reduce((s,r)=>s+r.limpieza,0);
+    const merc=rs.reduce((s,r)=>s+r.mercado,0);
+    const llav=rs.reduce((s,r)=>s+(r.llaves||0),0);
+    const otro=rs.reduce((s,r)=>s+r.otros,0);
+    const neto=ing-limp-merc-llav-otro;
+    const max=ing||1;
+    const brow=(v,c)=>`<div class="bar-row"><span class="bar-label" style="color:${c}">${['Ingreso','Limpieza','Mercado','Llaves','Otros'][['ing','limp','merc','llav','otro'].indexOf(v)]||v}</span><div class="bar-bg"><div class="bar-fill" style="width:${({ing:100,limp:limp/max*100,merc:merc/max*100,llav:llav/max*100,otro:otro/max*100}[v]||0).toFixed(1)}%;background:${c}"></div></div><span class="bar-amt">${fmt({ing,limp,merc,llav,otro}[v])}</span></div>`;
+    return`<div class="apt-resumen">
+      <div class="apt-name">🏠 ${apt} <span style="font-size:11px;color:#666;font-weight:400">(${rs.length} reservas)</span></div>
+      ${brow('ing','#4ECDC4')}${brow('limp','#FF6B6B')}${brow('merc','#FFD166')}${brow('llav','#A8E6CF')}${brow('otro','#C3B1E1')}
+      <div class="neto-row"><span style="font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;">Ganancia neta</span><span style="font-size:18px;font-weight:700;color:${neto>=0?'#A8E6CF':'#FF6B6B'}">${fmt(neto)}</span></div>
+    </div>`;
+  }).join('')}
+  <div style="background:#1c1c26;border:1px solid var(--border);border-radius:10px;padding:14px;">
+    <p style="font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:10px;">Por plataforma</p>
+    ${[...new Set(filtered.map(r=>r.plataforma))].map(p=>{
+      const rs=filtered.filter(r=>r.plataforma===p);
+      const ing=rs.reduce((s,r)=>s+r.ingreso,0);
+      return`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <span class="reserva-plataforma ${badgeClass(p)}">${p}</span>
+        <span style="font-size:13px;color:#4ECDC4;font-weight:700;">${fmt(ing)}</span>
+        <span style="font-size:11px;color:var(--muted);">${rs.length} res.</span>
+      </div>`;
+    }).join('')}
+  </div>
+
+  <div style="background:#1c1c26;border:1px solid var(--border);border-radius:10px;padding:14px;margin-top:10px;">
+    <p style="font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:14px;">📅 Reservas por mes</p>
+    ${(()=>{
+      const meses=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+      const maxRes = Math.max(...Array.from({length:12},(_,i)=>filtered.filter(r=>r.entrada&&parseInt(r.entrada.split('-')[1])-1===i).length),1);
+      return Array.from({length:12},(_,i)=>{
+        const rs = filtered.filter(r=>r.entrada&&parseInt(r.entrada.split('-')[1])-1===i);
+        const ing = rs.reduce((s,r)=>s+r.ingreso,0);
+        const neto = ing - rs.reduce((s,r)=>s+r.limpieza+r.mercado+(r.llaves||0)+r.otros,0);
+        const barW = rs.length>0 ? Math.round(rs.length/maxRes*100) : 0;
+        return`<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <span style="font-size:11px;color:var(--muted);width:28px;flex-shrink:0;">${meses[i]}</span>
+          <div style="flex:1;height:20px;background:var(--border);border-radius:4px;overflow:hidden;position:relative;">
+            <div style="height:100%;width:${barW}%;background:${rs.length>0?'#7C6FFF':'transparent'};border-radius:4px;transition:width .6s;"></div>
+            ${rs.length>0?`<span style="position:absolute;left:8px;top:2px;font-size:11px;color:#fff;font-weight:700;">${rs.length} reserva${rs.length!==1?'s':''}</span>`:''}
+          </div>
+          <span style="font-size:11px;color:${neto>=0?'#4ECDC4':'#FF6B6B'};width:72px;text-align:right;flex-shrink:0;">${rs.length>0?fmt(neto):''}</span>
+        </div>`;
+      }).join('');
+    })()}
+  </div>`;
+}
+
+renderReservas();
+const _today = new Date().toISOString().split('T')[0];
+document.getElementById('p-fecha').value = _today;
+</script>
+</body>
+</html>
