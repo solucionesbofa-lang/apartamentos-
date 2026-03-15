@@ -1,0 +1,642 @@
+<!DOCTYPE html>  
+  
+<html lang="es">  
+<head>  
+<meta charset="UTF-8">  
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">  
+<title>Mis Apartamentos</title>  
+<style>  
+  *{box-sizing:border-box;margin:0;padding:0;}  
+  :root{  
+    --bg:#0a0a0f;--card:#13131a;--border:#22222e;--accent:#7C6FFF;  
+    --green:#4ECDC4;--red:#FF6B6B;--yellow:#FFD166;--text:#F0EDE4;--muted:#666;  
+  }  
+  body{background:var(--bg);color:var(--text);font-family:monospace;min-height:100vh;padding-bottom:60px;}  
+  nav{background:var(--card);border-bottom:1px solid var(--border);padding:16px 18px;position:sticky;top:0;z-index:100;}  
+  .nav-title{font-size:17px;font-weight:700;letter-spacing:1px;color:var(--accent);}  
+  .nav-sub{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:2px;}  
+  .tabs{display:flex;gap:6px;padding:14px 16px 0;}  
+  .tab{flex:1;padding:10px 4px;border-radius:10px 10px 0 0;border:1px solid var(--border);border-bottom:none;  
+    background:var(--card);color:var(--muted);font-family:monospace;font-size:10px;letter-spacing:0px;  
+    text-transform:uppercase;cursor:pointer;text-align:center;transition:all .2s;}  
+  .tab.active{background:var(--accent);color:#fff;border-color:var(--accent);}  
+  .page{display:none;padding:0 16px 16px;}  
+  .page.active{display:block;}  
+  .section-card{background:var(--card);border:1px solid var(--border);border-radius:0 12px 12px 12px;padding:18px;margin-bottom:14px;}  
+  .section-title{font-size:10px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:14px;}  
+  .field{margin-bottom:12px;}  
+  label{display:block;font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:5px;}  
+  input,select,textarea{width:100%;background:#1c1c26;border:1px solid var(--border);border-radius:8px;  
+    padding:11px 13px;color:var(--text);font-family:monospace;font-size:14px;outline:none;-webkit-appearance:none;}  
+  input:focus,select:focus{border-color:var(--accent);}  
+  select option{background:#1c1c26;}  
+  input[type=number]::-webkit-inner-spin-button,  
+  input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;}  
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}  
+  .gastos-live{background:#1c1c26;border:1px solid #FF6B6B55;border-radius:10px;padding:12px 16px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;}  
+  .neto-live{background:#1c1c26;border:1px solid #4ECDC455;border-radius:10px;padding:12px 16px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;}  
+  .live-label{font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;}  
+  .live-val{font-size:20px;font-weight:700;}  
+  .btn{width:100%;padding:13px;border-radius:10px;border:none;font-family:monospace;  
+    font-size:13px;letter-spacing:1px;cursor:pointer;font-weight:700;margin-top:4px;transition:opacity .2s;}  
+  .btn:active{opacity:.7;}  
+  .btn-primary{background:var(--accent);color:#fff;}  
+  .btn-danger{background:transparent;border:1px solid var(--red);color:var(--red);}  
+  .btn-sm{width:auto;padding:6px 12px;font-size:11px;border-radius:7px;}  
+  .reserva-card{background:#1c1c26;border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;}  
+  .reserva-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}  
+  .reserva-apt{font-size:13px;font-weight:700;color:var(--accent);}  
+  .reserva-plataforma{font-size:10px;padding:3px 8px;border-radius:20px;background:#22222e;color:var(--muted);}  
+  .reserva-fechas{font-size:12px;color:var(--text);margin-bottom:2px;}  
+  .reserva-noches{font-size:10px;color:var(--muted);margin-bottom:6px;}  
+  .reserva-nums{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:8px;}  
+  .num-box{background:var(--bg);border-radius:7px;padding:8px;text-align:center;}  
+  .num-label{font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:3px;}  
+  .num-val{font-size:14px;font-weight:700;}  
+  .gastos-pills{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;}  
+  .pill{font-size:10px;padding:3px 8px;border-radius:20px;background:var(--bg);color:var(--muted);}  
+  .badge-airbnb{background:#FF5A5F22;color:#FF5A5F;}  
+  .badge-booking{background:#003B9522;color:#4a9eff;}  
+  .badge-vrbo{background:#18530422;color:#4CAF50;}  
+  .badge-mercadolibre{background:#FFD16622;color:#FFD166;}  
+  .badge-directo{background:#7C6FFF22;color:#7C6FFF;}  
+  .badge-otro{background:#66666622;color:#aaa;}  
+  .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}  
+  .stat-box{background:#1c1c26;border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;}  
+  .stat-label{font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;}  
+  .stat-val{font-size:20px;font-weight:700;}  
+  .apt-resumen{background:#1c1c26;border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;}  
+  .apt-name{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:10px;}  
+  .bar-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;}  
+  .bar-label{font-size:10px;color:var(--muted);width:75px;flex-shrink:0;}  
+  .bar-bg{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden;}  
+  .bar-fill{height:100%;border-radius:3px;transition:width .6s ease;}  
+  .bar-amt{font-size:11px;color:var(--text);width:72px;text-align:right;flex-shrink:0;}  
+  .neto-row{display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--bg);border-radius:8px;margin-top:8px;}  
+  .empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:12px;letter-spacing:1px;}  
+  .empty .icon{font-size:40px;margin-bottom:12px;}  
+  .modal-overlay{display:none;position:fixed;inset:0;background:#000a;z-index:200;align-items:flex-end;}  
+  .modal-overlay.open{display:flex;}  
+  .modal{background:var(--card);border:1px solid var(--border);border-radius:18px 18px 0 0;  
+    padding:22px 18px 36px;width:100%;max-height:90vh;overflow-y:auto;}  
+  .modal-title{font-size:14px;font-weight:700;margin-bottom:18px;color:var(--accent);}  
+  .modal-close{float:right;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;}  
+  .divider{height:1px;background:var(--border);margin:14px 0;}  
+  .subsec{font-size:10px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;margin-bottom:10px;}  
+  .pago-card{background:#1c1c26;border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:8px;}  
+  .pago-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;}  
+  .pago-tipo{font-size:13px;font-weight:700;}  
+  .pago-estado-pagado{font-size:10px;padding:3px 10px;border-radius:20px;background:#4ECDC422;color:#4ECDC4;}  
+  .pago-estado-pendiente{font-size:10px;padding:3px 10px;border-radius:20px;background:#FFD16622;color:#FFD166;}  
+  .pago-info{font-size:11px;color:var(--muted);margin-bottom:4px;}  
+  .pago-monto{font-size:20px;font-weight:700;color:#FF6B6B;}  
+  .pago-actions{display:flex;gap:8px;margin-top:10px;}  
+</style>  
+</head>  
+<body>  
+  
+<nav>  
+  <div class="nav-title">🏖 Mis Apartamentos</div>  
+  <div class="nav-sub">gestión vacacional</div>  
+</nav>  
+  
+<div class="tabs">  
+  <button class="tab active" onclick="showPage('reservas')">📋 Reservas</button>  
+  <button class="tab" onclick="showPage('nueva')">➕ Nueva</button>  
+  <button class="tab" onclick="showPage('pagos')">💳 Pagos</button>  
+  <button class="tab" onclick="showPage('resumen')">📊 Resumen</button>  
+</div>  
+  
+<!-- RESERVAS -->  
+  
+<div class="page active" id="page-reservas">  
+  <div class="section-card">  
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">  
+      <span class="section-title" style="margin:0">Historial</span>  
+      <select id="filtro-apt" onchange="renderReservas()" style="width:auto;padding:6px 10px;font-size:11px;">  
+        <option value="">Todos</option>  
+        <option value="Apto Macuto">Apto Macuto</option>  
+        <option value="Apto Tanaguarena">Apto Tanaguarena</option>  
+      </select>  
+    </div>  
+    <div id="lista-reservas"></div>  
+  </div>  
+</div>  
+  
+<!-- NUEVA -->  
+  
+<div class="page" id="page-nueva">  
+  <div class="section-card">  
+    <p class="section-title">Nueva reserva</p>  
+    <div class="field"><label>Apartamento</label>  
+      <select id="f-apt"><option>Apto Macuto</option><option>Apto Tanaguarena</option></select></div>  
+    <div class="field"><label>Plataforma</label>  
+      <select id="f-plataforma"><option>Airbnb</option><option>Booking</option><option>Mercado Libre</option><option>Redes Sociales</option></select></div>  
+    <div class="row2">  
+      <div class="field"><label>📅 Entrada</label><input type="date" id="f-entrada" oninput="calcLive('f')"></div>  
+      <div class="field"><label>📅 Salida</label><input type="date" id="f-salida" oninput="calcLive('f')"></div>  
+    </div>  
+    <div class="field"><label>👤 Huésped (opcional)</label><input type="text" id="f-huesped" placeholder="Ej: María García"></div>  
+    <div class="divider"></div>  
+    <p class="subsec">💰 Ingresos</p>  
+    <div class="field"><label>Ingreso total</label><input type="number" id="f-ingreso" placeholder="0.00" oninput="calcLive('f')"></div>  
+    <div class="divider"></div>  
+    <p class="subsec">💸 Gastos</p>  
+    <div class="row2">  
+      <div class="field"><label>🧹 Limpieza</label><input type="number" id="f-limpieza" placeholder="0.00" oninput="calcLive('f')"></div>  
+      <div class="field"><label>🛒 Mercado</label><input type="number" id="f-mercado" placeholder="0.00" oninput="calcLive('f')"></div>  
+    </div>  
+    <div class="row2">  
+      <div class="field"><label>🔑 Entrega llaves</label><input type="number" id="f-llaves" placeholder="0.00" oninput="calcLive('f')"></div>  
+      <div class="field"><label>🔧 Otros</label><input type="number" id="f-otros" placeholder="0.00" oninput="calcLive('f')"></div>  
+    </div>  
+    <div class="gastos-live">  
+      <span class="live-label">Total gastos</span>  
+      <span class="live-val" id="f-live-gastos" style="color:#FF6B6B">$0,00</span>  
+    </div>  
+    <div class="neto-live">  
+      <span class="live-label">Ganancia neta</span>  
+      <span class="live-val" id="f-live-neto" style="color:#A8E6CF">$0,00</span>  
+    </div>  
+    <div class="field"><label>📝 Notas</label>  
+      <textarea id="f-notas" rows="2" placeholder="Incidencias, extras..." style="resize:none;background:#1c1c26;border:1px solid var(--border);border-radius:8px;padding:11px 13px;color:var(--text);font-family:monospace;font-size:13px;outline:none;width:100%;"></textarea></div>  
+    <button class="btn btn-primary" onclick="guardarReserva()">✅ GUARDAR RESERVA</button>  
+  </div>  
+</div>  
+  
+<!-- PAGOS -->  
+  
+<div class="page" id="page-pagos">  
+  
+  <!-- RESUMEN DEUDA DESDE RESERVAS -->  
+  
+  <div class="section-card">  
+    <p class="section-title">Lo que debes · desde reservas</p>  
+    <div id="deuda-resumen"></div>  
+  </div>  
+  
+  <!-- REGISTRAR ABONO -->  
+  
+  <div class="section-card" style="border-radius:12px;">  
+    <p class="section-title">Registrar abono</p>  
+  
+```  
+<div class="field">  
+  <label>Persona</label>  
+  <select id="p-tipo">  
+    <option value="limpieza">🧹 Limpieza — Ingrid</option>  
+    <option value="llaves">🔑 Entrega de llaves — Dicarla</option>  
+  </select>  
+</div>  
+  
+<div class="field">  
+  <label>📅 Fecha del pago</label>  
+  <input type="date" id="p-fecha">  
+</div>  
+  
+<div class="field">  
+  <label>💵 Monto abonado</label>  
+  <input type="number" id="p-monto" placeholder="0.00">  
+</div>  
+  
+<div class="field">  
+  <label>Estado</label>  
+  <select id="p-estado">  
+    <option value="pagado">✅ Pagado</option>  
+    <option value="pendiente">⏳ Pendiente</option>  
+  </select>  
+</div>  
+  
+<div class="field">  
+  <label>💬 Comentario (opcional)</label>  
+  <input type="text" id="p-desc" placeholder="Ej: Pago semana del 15 al 21">  
+</div>  
+  
+<button class="btn btn-primary" onclick="guardarPago()">💾 REGISTRAR ABONO</button>  
+```  
+  
+  </div>  
+  
+  <!-- HISTORIAL ABONOS -->  
+  
+  <div class="section-card" style="border-radius:12px;">  
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">  
+      <span class="section-title" style="margin:0">Historial de abonos</span>  
+      <select id="p-filtro" onchange="renderPagos()" style="width:auto;padding:6px 10px;font-size:11px;">  
+        <option value="">Todos</option>  
+        <option value="limpieza">Ingrid</option>  
+        <option value="llaves">Dicarla</option>  
+      </select>  
+    </div>  
+    <div id="lista-pagos"></div>  
+  </div>  
+</div>  
+  
+<!-- RESUMEN -->  
+  
+<div class="page" id="page-resumen">  
+  <div class="section-card">  
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">  
+      <span class="section-title" style="margin:0">Resumen general</span>  
+      <select id="filtro-year" onchange="renderResumen()" style="width:auto;padding:6px 10px;font-size:11px;"></select>  
+    </div>  
+    <div id="contenido-resumen"></div>  
+  </div>  
+</div>  
+  
+<!-- MODAL EDITAR -->  
+  
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">  
+  <div class="modal">  
+    <button class="modal-close" onclick="document.getElementById('modal').classList.remove('open')">✕</button>  
+    <p class="modal-title">✏️ Editar reserva</p>  
+    <input type="hidden" id="e-id">  
+    <div class="field"><label>Apartamento</label>  
+      <select id="e-apt"><option>Apto Macuto</option><option>Apto Tanaguarena</option></select></div>  
+    <div class="field"><label>Plataforma</label>  
+      <select id="e-plataforma"><option>Airbnb</option><option>Booking</option><option>Mercado Libre</option><option>Redes Sociales</option></select></div>  
+    <div class="row2">  
+      <div class="field"><label>Entrada</label><input type="date" id="e-entrada" oninput="calcLive('e')"></div>  
+      <div class="field"><label>Salida</label><input type="date" id="e-salida" oninput="calcLive('e')"></div>  
+    </div>  
+    <div class="field"><label>Huésped</label><input type="text" id="e-huesped"></div>  
+    <div class="divider"></div>  
+    <p class="subsec">💰 Ingresos</p>  
+    <div class="field"><label>Ingreso total</label><input type="number" id="e-ingreso" oninput="calcLive('e')"></div>  
+    <div class="divider"></div>  
+    <p class="subsec">💸 Gastos</p>  
+    <div class="row2">  
+      <div class="field"><label>🧹 Limpieza</label><input type="number" id="e-limpieza" oninput="calcLive('e')"></div>  
+      <div class="field"><label>🛒 Mercado</label><input type="number" id="e-mercado" oninput="calcLive('e')"></div>  
+    </div>  
+    <div class="row2">  
+      <div class="field"><label>🔑 Entrega llaves</label><input type="number" id="e-llaves" oninput="calcLive('e')"></div>  
+      <div class="field"><label>🔧 Otros</label><input type="number" id="e-otros" oninput="calcLive('e')"></div>  
+    </div>  
+    <div class="gastos-live">  
+      <span class="live-label">Total gastos</span>  
+      <span class="live-val" id="e-live-gastos" style="color:#FF6B6B">$0,00</span>  
+    </div>  
+    <div class="neto-live">  
+      <span class="live-label">Ganancia neta</span>  
+      <span class="live-val" id="e-live-neto" style="color:#A8E6CF">$0,00</span>  
+    </div>  
+    <div class="field"><label>Notas</label>  
+      <textarea id="e-notas" rows="2" style="resize:none;background:#1c1c26;border:1px solid var(--border);border-radius:8px;padding:11px 13px;color:var(--text);font-family:monospace;font-size:13px;outline:none;width:100%;"></textarea></div>  
+    <button class="btn btn-primary" onclick="actualizarReserva()">ACTUALIZAR</button>  
+    <button id="btn-eliminar-reserva" class="btn btn-danger" style="margin-top:8px" onclick="eliminarReserva()">ELIMINAR RESERVA</button>  
+  </div>  
+</div>  
+  
+<script>  
+const APTS = ['Apto Macuto','Apto Tanaguarena'];  
+function getData(){ return JSON.parse(localStorage.getItem('apts_v2')||'[]'); }  
+function saveData(d){ localStorage.setItem('apts_v2', JSON.stringify(d)); }  
+const fmtN = v => (parseFloat(v)||0).toLocaleString('es-VE',{minimumFractionDigits:2,maximumFractionDigits:2});  
+const fmt  = v => '$' + fmtN(v);  
+function noches(e,s){ const d=(new Date(s)-new Date(e))/864e5; return isNaN(d)||d<0?0:d; }  
+function badgeClass(p){ return {Airbnb:'badge-airbnb',Booking:'badge-booking','Mercado Libre':'badge-mercadolibre','Redes Sociales':'badge-directo'}[p]||'badge-otro'; }  
+function formatDate(d){ if(!d)return'—'; const[y,m,day]=d.split('-'); return`${day}/${m}/${y}`; }  
+  
+function calcLive(prefix){  
+  const g = id => parseFloat(document.getElementById(prefix+'-'+id).value)||0;  
+  const ing   = g('ingreso');  
+  const gastos= g('limpieza')+g('mercado')+g('llaves')+g('otros');  
+  const neto  = ing - gastos;  
+  document.getElementById(prefix+'-live-gastos').textContent = fmt(gastos);  
+  const el = document.getElementById(prefix+'-live-neto');  
+  el.textContent = fmt(neto);  
+  el.style.color = neto>=0?'#A8E6CF':'#FF6B6B';  
+}  
+  
+function showPage(p){  
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));  
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));  
+  document.getElementById('page-'+p).classList.add('active');  
+  document.querySelectorAll('.tab')[{reservas:0,nueva:1,pagos:2,resumen:3}[p]].classList.add('active');  
+  if(p==='reservas') renderReservas();  
+  if(p==='pagos')    renderPagos();  
+  if(p==='resumen')  renderResumen();  
+}  
+  
+// ── PAGOS ─────────────────────────────────────────────────  
+function getPagos(){ return JSON.parse(localStorage.getItem('apts_pagos')||'[]'); }  
+function savePagos(d){ localStorage.setItem('apts_pagos', JSON.stringify(d)); }  
+  
+function guardarPago(){  
+  const monto = parseFloat(document.getElementById('p-monto').value)||0;  
+  const fecha  = document.getElementById('p-fecha').value;  
+  if(!fecha){ alert('Por favor indica la fecha.'); return; }  
+  if(!monto){ alert('Por favor indica el monto.'); return; }  
+  const d = getPagos();  
+  d.unshift({  
+    id:     Date.now(),  
+    tipo:   document.getElementById('p-tipo').value,  
+    fecha,  
+    monto,  
+    estado: document.getElementById('p-estado').value,  
+    desc:   document.getElementById('p-desc').value,  
+  });  
+  savePagos(d);  
+  ['p-monto','p-desc'].forEach(id=>document.getElementById(id).value='');  
+  renderPagos();  
+}  
+  
+function eliminarPago(btn){  
+  if(btn.dataset.confirm==='1'){  
+    const id = parseInt(btn.getAttribute('data-id'));  
+    savePagos(getPagos().filter(x=>x.id!==id));  
+    renderPagos();  
+  } else {  
+    btn.dataset.confirm='1';  
+    btn.textContent='⚠️ Confirmar';  
+    btn.style.background='#FF6B6B';  
+    btn.style.color='#fff';  
+    setTimeout(()=>{ btn.dataset.confirm=''; btn.textContent='🗑 Eliminar'; btn.style.background=''; btn.style.color=''; }, 3000);  
+  }  
+}  
+  
+function renderPagos(){  
+  const reservas = getData();  
+  const abonos   = getPagos();  
+  
+  // ── Totales que vienen de las reservas ──  
+  const deudaIngrid  = reservas.reduce((s,r)=>s+(r.limpieza||0),0);  
+  const deudaDicarla = reservas.reduce((s,r)=>s+(r.llaves||0),0);  
+  
+  // ── Lo ya pagado (abonos con estado pagado) ──  
+  const pagadoIngrid  = abonos.filter(a=>a.tipo==='limpieza'&&a.estado==='pagado').reduce((s,a)=>s+a.monto,0);  
+  const pagadoDicarla = abonos.filter(a=>a.tipo==='llaves'  &&a.estado==='pagado').reduce((s,a)=>s+a.monto,0);  
+  
+  const pendienteIngrid  = deudaIngrid  - pagadoIngrid;  
+  const pendienteDicarla = deudaDicarla - pagadoDicarla;  
+  
+  // ── Bloque deuda desde reservas ──  
+  document.getElementById('deuda-resumen').innerHTML=`  
+    <div style="margin-bottom:12px;">  
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">  
+        <span style="font-size:12px;color:#FF6B6B;">🧹 Ingrid — Limpieza</span>  
+      </div>  
+      <div style="background:#1c1c26;border-radius:10px;padding:14px;border:1px solid #FF6B6B33;">  
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;">  
+          <div>  
+            <div style="font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;">Total deuda</div>  
+            <div style="font-size:16px;font-weight:700;color:#FF6B6B;">${fmt(deudaIngrid)}</div>  
+          </div>  
+          <div>  
+            <div style="font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;">Pagado</div>  
+            <div style="font-size:16px;font-weight:700;color:#4ECDC4;">${fmt(pagadoIngrid)}</div>  
+          </div>  
+          <div>  
+            <div style="font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;">${pendienteIngrid<0?'A tu favor':'Pendiente'}</div>  
+            <div style="font-size:16px;font-weight:700;color:${pendienteIngrid>0?'#FFD166':pendienteIngrid<0?'#FF6B6B':'#4ECDC4'};">${fmt(pendienteIngrid)}</div>  
+          </div>  
+        </div>  
+        <div style="margin-top:10px;height:6px;background:var(--border);border-radius:3px;overflow:hidden;">  
+          <div style="height:100%;width:${deudaIngrid>0?Math.min(pagadoIngrid/deudaIngrid*100,100).toFixed(1):0}%;background:#4ECDC4;border-radius:3px;transition:width .6s;"></div>  
+        </div>  
+        <div style="font-size:10px;color:var(--muted);text-align:right;margin-top:4px;">${deudaIngrid>0?Math.min(pagadoIngrid/deudaIngrid*100,100).toFixed(0):0}% pagado</div>  
+      </div>  
+    </div>  
+  
+    <div>  
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">  
+        <span style="font-size:12px;color:#7C6FFF;">🔑 Dicarla — Entrega llaves</span>  
+      </div>  
+      <div style="background:#1c1c26;border-radius:10px;padding:14px;border:1px solid #7C6FFF33;">  
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;">  
+          <div>  
+            <div style="font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;">Total deuda</div>  
+            <div style="font-size:16px;font-weight:700;color:#7C6FFF;">${fmt(deudaDicarla)}</div>  
+          </div>  
+          <div>  
+            <div style="font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;">Pagado</div>  
+            <div style="font-size:16px;font-weight:700;color:#4ECDC4;">${fmt(pagadoDicarla)}</div>  
+          </div>  
+          <div>  
+            <div style="font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;">${pendienteDicarla<0?'A tu favor':'Pendiente'}</div>  
+            <div style="font-size:16px;font-weight:700;color:${pendienteDicarla>0?'#FFD166':pendienteDicarla<0?'#FF6B6B':'#4ECDC4'};">${fmt(pendienteDicarla)}</div>  
+          </div>  
+        </div>  
+        <div style="margin-top:10px;height:6px;background:var(--border);border-radius:3px;overflow:hidden;">  
+          <div style="height:100%;width:${deudaDicarla>0?Math.min(pagadoDicarla/deudaDicarla*100,100).toFixed(1):0}%;background:#7C6FFF;border-radius:3px;transition:width .6s;"></div>  
+        </div>  
+        <div style="font-size:10px;color:var(--muted);text-align:right;margin-top:4px;">${deudaDicarla>0?Math.min(pagadoDicarla/deudaDicarla*100,100).toFixed(0):0}% pagado</div>  
+      </div>  
+    </div>`;  
+  
+  // ── Lista de abonos ──  
+  const filtro = document.getElementById('p-filtro').value;  
+  let lista = getPagos();  
+  if(filtro) lista = lista.filter(a=>a.tipo===filtro);  
+  lista.sort((a,b)=> new Date(b.fecha) - new Date(a.fecha));  
+  const el = document.getElementById('lista-pagos');  
+  if(!lista.length){  
+    el.innerHTML=`<div class="empty"><div class="icon">💳</div>Sin abonos registrados aún.</div>`;  
+    return;  
+  }  
+  el.innerHTML = lista.map(a=>{  
+    const esIngrid = a.tipo==='limpieza';  
+    const persona  = esIngrid?'Ingrid':'Dicarla';  
+    const icono    = esIngrid?'🧹':'🔑';  
+    const color    = esIngrid?'#FF6B6B':'#7C6FFF';  
+    return`<div class="pago-card">  
+      <div class="pago-header">  
+        <div>  
+          <div class="pago-tipo" style="color:${color}">${icono} ${persona}</div>  
+          <div class="pago-info">📅 ${formatDate(a.fecha)}</div>  
+          ${a.desc?`<div class="pago-info" style="color:#aaa;">💬 ${a.desc}</div>`:''}  
+        </div>  
+        <span class="pago-estado-${a.estado}">${a.estado==='pagado'?'✅ Pagado':'⏳ Pendiente'}</span>  
+      </div>  
+      <div class="pago-monto">${fmt(a.monto)}</div>  
+      <div class="pago-actions">  
+        <button class="btn btn-danger btn-sm" data-id="${a.id}" onclick="eliminarPago(this)">🗑 Eliminar</button>  
+      </div>  
+    </div>`;  
+  }).join('');  
+}  
+function guardarReserva(){  
+  const entrada=document.getElementById('f-entrada').value;  
+  const salida =document.getElementById('f-salida').value;  
+  if(!entrada||!salida){alert('Por favor indica las fechas.');return;}  
+  const d=getData();  
+  d.unshift({id:Date.now(),  
+    apt:       document.getElementById('f-apt').value,  
+    plataforma:document.getElementById('f-plataforma').value,  
+    entrada, salida,  
+    huesped:   document.getElementById('f-huesped').value,  
+    ingreso:   parseFloat(document.getElementById('f-ingreso').value)||0,  
+    limpieza:  parseFloat(document.getElementById('f-limpieza').value)||0,  
+    mercado:   parseFloat(document.getElementById('f-mercado').value)||0,  
+    llaves:    parseFloat(document.getElementById('f-llaves').value)||0,  
+    otros:     parseFloat(document.getElementById('f-otros').value)||0,  
+    notas:     document.getElementById('f-notas').value,  
+  });  
+  saveData(d);  
+  ['f-huesped','f-ingreso','f-limpieza','f-mercado','f-llaves','f-otros','f-notas','f-entrada','f-salida']  
+    .forEach(id=>document.getElementById(id).value='');  
+  calcLive('f');  
+  showPage('reservas');  
+}  
+  
+function renderReservas(){  
+  const filtro=document.getElementById('filtro-apt').value;  
+  let data=getData();  
+  if(filtro) data=data.filter(r=>r.apt===filtro);  
+  data.sort((a,b)=>{  
+    const pa = a.entrada ? a.entrada.split(/[-\/]/) : [];  
+    const pb = b.entrada ? b.entrada.split(/[-\/]/) : [];  
+    // Support both YYYY-MM-DD and DD/MM/YYYY  
+    const da = pa.length===3 ? (pa[0].length===4 ? new Date(a.entrada) : new Date(`${pa[2]}-${pa[1]}-${pa[0]}`)) : new Date(0);  
+    const db = pb.length===3 ? (pb[0].length===4 ? new Date(b.entrada) : new Date(`${pb[2]}-${pb[1]}-${pb[0]}`)) : new Date(0);  
+    return da - db;  
+  });  
+  const el=document.getElementById('lista-reservas');  
+  if(!data.length){el.innerHTML=`<div class="empty"><div class="icon">🏖</div>Sin reservas aún.<br>Añade tu primera reserva.</div>`;return;}  
+  el.innerHTML=data.map(r=>{  
+    const llaves=r.llaves||0;  
+    const gastos=r.limpieza+r.mercado+llaves+r.otros;  
+    const neto=r.ingreso-gastos;  
+    const n=noches(r.entrada,r.salida);  
+    const pills=[  
+      r.limpieza?`🧹 ${fmt(r.limpieza)}`:'',  
+      r.mercado ?`🛒 ${fmt(r.mercado)}`:'',  
+      llaves    ?`🔑 ${fmt(llaves)}`:'',  
+      r.otros   ?`🔧 ${fmt(r.otros)}`:'',  
+    ].filter(Boolean);  
+    return`<div class="reserva-card">  
+      <div class="reserva-header">  
+        <div>  
+          <div class="reserva-apt">${r.apt}</div>  
+          ${r.huesped?`<div style="font-size:11px;color:#aaa;margin-top:2px;">👤 ${r.huesped}</div>`:''}  
+        </div>  
+        <span class="reserva-plataforma ${badgeClass(r.plataforma)}">${r.plataforma}</span>  
+      </div>  
+      <div class="reserva-fechas">📅 ${formatDate(r.entrada)} → ${formatDate(r.salida)}</div>  
+      <div class="reserva-noches">${n} noche${n!==1?'s':''}</div>  
+      <div class="reserva-nums">  
+        <div class="num-box"><div class="num-label">Ingreso</div><div class="num-val" style="color:#4ECDC4">${fmt(r.ingreso)}</div></div>  
+        <div class="num-box"><div class="num-label">Gastos</div><div class="num-val" style="color:#FF6B6B">${fmt(gastos)}</div></div>  
+        <div class="num-box"><div class="num-label">Neto</div><div class="num-val" style="color:${neto>=0?'#A8E6CF':'#FF6B6B'}">${fmt(neto)}</div></div>  
+      </div>  
+      ${pills.length?`<div class="gastos-pills">${pills.map(p=>`<span class="pill">${p}</span>`).join('')}</div>`:''}  
+      ${r.notas?`<div style="font-size:11px;color:#666;margin-top:8px;padding:8px;background:var(--bg);border-radius:6px;">📝 ${r.notas}</div>`:''}  
+      <div style="margin-top:10px;"><button class="btn btn-primary btn-sm" data-id="${r.id}" onclick="abrirEditar(this)">✏️ Editar</button></div>  
+    </div>`;  
+  }).join('');  
+}  
+  
+function abrirEditar(btn){  
+  const id = parseInt(btn.getAttribute('data-id'));  
+  const r=getData().find(x=>x.id===id);  
+  if(!r) return;  
+  ['id','apt','plataforma','entrada','salida','huesped','ingreso','limpieza','mercado','llaves','otros','notas']  
+    .forEach(k=>{ const el=document.getElementById('e-'+k); if(el) el.value=r[k]||''; });  
+  calcLive('e');  
+  document.getElementById('modal').classList.add('open');  
+}  
+function actualizarReserva(){  
+  const id=parseInt(document.getElementById('e-id').value);  
+  let d=getData(); const i=d.findIndex(x=>x.id===id); if(i<0)return;  
+  ['apt','plataforma','entrada','salida','huesped','notas'].forEach(k=>d[i][k]=document.getElementById('e-'+k).value);  
+  ['ingreso','limpieza','mercado','llaves','otros'].forEach(k=>d[i][k]=parseFloat(document.getElementById('e-'+k).value)||0);  
+  saveData(d);  
+  document.getElementById('modal').classList.remove('open');  
+  renderReservas();  
+}  
+function eliminarReserva(){  
+  const btn = document.getElementById('btn-eliminar-reserva');  
+  if(btn && btn.dataset.confirm==='1'){  
+    const id=parseInt(document.getElementById('e-id').value);  
+    saveData(getData().filter(x=>x.id!==id));  
+    document.getElementById('modal').classList.remove('open');  
+    renderReservas();  
+  } else if(btn){  
+    btn.dataset.confirm='1';  
+    btn.textContent='⚠️ Toca de nuevo para confirmar';  
+    setTimeout(()=>{ btn.dataset.confirm=''; btn.textContent='ELIMINAR RESERVA'; }, 3000);  
+  }  
+}  
+function closeModal(e){ if(e.target.id==='modal') document.getElementById('modal').classList.remove('open'); }  
+  
+function renderResumen(){  
+  const data=getData();  
+  const years=[...new Set(data.map(r=>r.entrada?r.entrada.split('-')[0]:''))].filter(Boolean).sort().reverse();  
+  const sel=document.getElementById('filtro-year');  
+  const curYear=sel.value||(years[0]||new Date().getFullYear().toString());  
+  sel.innerHTML=years.length?years.map(y=>`<option${y===curYear?' selected':''}>${y}</option>`).join(''):`<option>${new Date().getFullYear()}</option>`;  
+  const filtered=data.filter(r=>r.entrada&&r.entrada.startsWith(curYear));  
+  const el=document.getElementById('contenido-resumen');  
+  if(!filtered.length){el.innerHTML=`<div class="empty"><div class="icon">📊</div>Sin datos para ${curYear}</div>`;return;}  
+  const tIng  =filtered.reduce((s,r)=>s+r.ingreso,0);  
+  const tGasto=filtered.reduce((s,r)=>s+r.limpieza+r.mercado+(r.llaves||0)+r.otros,0);  
+  const tNeto =tIng-tGasto;  
+  const tNoch =filtered.reduce((s,r)=>s+noches(r.entrada,r.salida),0);  
+  el.innerHTML=`  
+  <div class="stat-grid">  
+    <div class="stat-box"><div class="stat-label">Total ingresos</div><div class="stat-val" style="color:#4ECDC4">${fmt(tIng)}</div></div>  
+    <div class="stat-box"><div class="stat-label">Total gastos</div><div class="stat-val" style="color:#FF6B6B">${fmt(tGasto)}</div></div>  
+    <div class="stat-box"><div class="stat-label">Ganancia neta</div><div class="stat-val" style="color:${tNeto>=0?'#A8E6CF':'#FF6B6B'}">${fmt(tNeto)}</div></div>  
+    <div class="stat-box"><div class="stat-label">Reservas · Noches</div><div class="stat-val" style="color:#FFD166">${filtered.length} · ${tNoch}</div></div>  
+  </div>  
+  ${APTS.map(apt=>{  
+    const rs=filtered.filter(r=>r.apt===apt);  
+    if(!rs.length) return '';  
+    const ing =rs.reduce((s,r)=>s+r.ingreso,0);  
+    const limp=rs.reduce((s,r)=>s+r.limpieza,0);  
+    const merc=rs.reduce((s,r)=>s+r.mercado,0);  
+    const llav=rs.reduce((s,r)=>s+(r.llaves||0),0);  
+    const otro=rs.reduce((s,r)=>s+r.otros,0);  
+    const neto=ing-limp-merc-llav-otro;  
+    const max=ing||1;  
+    const brow=(v,c)=>`<div class="bar-row"><span class="bar-label" style="color:${c}">${['Ingreso','Limpieza','Mercado','Llaves','Otros'][['ing','limp','merc','llav','otro'].indexOf(v)]||v}</span><div class="bar-bg"><div class="bar-fill" style="width:${({ing:100,limp:limp/max*100,merc:merc/max*100,llav:llav/max*100,otro:otro/max*100}[v]||0).toFixed(1)}%;background:${c}"></div></div><span class="bar-amt">${fmt({ing,limp,merc,llav,otro}[v])}</span></div>`;  
+    return`<div class="apt-resumen">  
+      <div class="apt-name">🏠 ${apt} <span style="font-size:11px;color:#666;font-weight:400">(${rs.length} reservas)</span></div>  
+      ${brow('ing','#4ECDC4')}${brow('limp','#FF6B6B')}${brow('merc','#FFD166')}${brow('llav','#A8E6CF')}${brow('otro','#C3B1E1')}  
+      <div class="neto-row"><span style="font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;">Ganancia neta</span><span style="font-size:18px;font-weight:700;color:${neto>=0?'#A8E6CF':'#FF6B6B'}">${fmt(neto)}</span></div>  
+    </div>`;  
+  }).join('')}  
+  <div style="background:#1c1c26;border:1px solid var(--border);border-radius:10px;padding:14px;">  
+    <p style="font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:10px;">Por plataforma</p>  
+    ${[...new Set(filtered.map(r=>r.plataforma))].map(p=>{  
+      const rs=filtered.filter(r=>r.plataforma===p);  
+      const ing=rs.reduce((s,r)=>s+r.ingreso,0);  
+      return`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">  
+        <span class="reserva-plataforma ${badgeClass(p)}">${p}</span>  
+        <span style="font-size:13px;color:#4ECDC4;font-weight:700;">${fmt(ing)}</span>  
+        <span style="font-size:11px;color:var(--muted);">${rs.length} res.</span>  
+      </div>`;  
+    }).join('')}  
+  </div>  
+  
+  <div style="background:#1c1c26;border:1px solid var(--border);border-radius:10px;padding:14px;margin-top:10px;">  
+    <p style="font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:14px;">📅 Reservas por mes</p>  
+    ${(()=>{  
+      const meses=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];  
+      const maxRes = Math.max(...Array.from({length:12},(_,i)=>filtered.filter(r=>r.entrada&&parseInt(r.entrada.split('-')[1])-1===i).length),1);  
+      return Array.from({length:12},(_,i)=>{  
+        const rs = filtered.filter(r=>r.entrada&&parseInt(r.entrada.split('-')[1])-1===i);  
+        const ing = rs.reduce((s,r)=>s+r.ingreso,0);  
+        const neto = ing - rs.reduce((s,r)=>s+r.limpieza+r.mercado+(r.llaves||0)+r.otros,0);  
+        const barW = rs.length>0 ? Math.round(rs.length/maxRes*100) : 0;  
+        return`<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">  
+          <span style="font-size:11px;color:var(--muted);width:28px;flex-shrink:0;">${meses[i]}</span>  
+          <div style="flex:1;height:20px;background:var(--border);border-radius:4px;overflow:hidden;position:relative;">  
+            <div style="height:100%;width:${barW}%;background:${rs.length>0?'#7C6FFF':'transparent'};border-radius:4px;transition:width .6s;"></div>  
+            ${rs.length>0?`<span style="position:absolute;left:8px;top:2px;font-size:11px;color:#fff;font-weight:700;">${rs.length} reserva${rs.length!==1?'s':''}</span>`:''}  
+          </div>  
+          <span style="font-size:11px;color:${neto>=0?'#4ECDC4':'#FF6B6B'};width:72px;text-align:right;flex-shrink:0;">${rs.length>0?fmt(neto):''}</span>  
+        </div>`;  
+      }).join('');  
+    })()}  
+  </div>`;  
+}  
+  
+renderReservas();  
+const _today = new Date().toISOString().split('T')[0];  
+document.getElementById('p-fecha').value = _today;  
+</script>  
+  
+</body>  
+</html>  
